@@ -1,0 +1,19 @@
+# --- Файл .gitignore для Emacs ---
+
+# Локальное состояние и история
+.emacs.desktop
+.emacs.desktop.lock
+auto-save-list/
+bookmarks
+history
+
+# Скомпилированные пакеты (use-package скачает их сам)
+elpa/
+eln-cache/
+
+# Автоматически сгенерированные настройки (уникальны для каждой ОС)
+custom-auto.el
+
+# Временные файлы бэкапов (Emacs создает файлы с тильдой на конце)
+*~
+\#*\#
