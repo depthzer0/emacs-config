@@ -218,6 +218,12 @@
 (when (eq system-type 'windows-nt)
   (advice-add 'server-ensure-safe-dir :override #'ignore))
 
+;; --- Настройка SSH для Magit в Windows ---
+;; Указываем Git использовать нативный SSH-клиент Windows, 
+;; который умеет работать с системным ssh-agent (и KeePassXC)
+(when (eq system-type 'windows-nt)
+  (setenv "GIT_SSH" "C:/Windows/System32/OpenSSH/ssh.exe"))
+
 (use-package which-key
   :ensure nil ; Явно указываем, что пакет встроен в ядро (не требует скачивания)
   :defer 2   ; Ленивая загрузка: загрузить в фоне через 2 секунды простоя
