@@ -2,20 +2,20 @@
 
 ;; Мой первый конфигурационный файл Emacs
 
-;; Отключаем звуковой сигнал (beep) при ошибках
+;; --- Отключаем звуковой сигнал (beep) при ошибках ---
 (setq ring-bell-function 'ignore)
 
-;; Стартовое окно
-(setq inhibit-startup-message t)
+;; --- Устанавливаем домашнюю директорию по умолчанию для новых буферов ---
+(setq-default default-directory "~/")
 
-;; Включаем встроенный режим повторения команд (удобно для окон, undo и т.д.)
+;; Отключение сохранения сессии между запусками
+(desktop-save-mode -1)
+
+;; --- Включаем встроенный режим повторения команд (удобно для окон, undo и т.д.) ---
 (repeat-mode 1)
 
 ;; Удалять выделенный текст при нажатии Backspace или вводе нового текста
 (delete-selection-mode 1)
-
-;; Включаем панель вкладок (Workspaces)
-(tab-bar-mode 1)
 
 ;; --- Настройка шрифта ---
 
@@ -24,7 +24,7 @@
 ;;(let ((my-font "Hack")
 (let ((my-font "Fira Code")
       (my-size 11))
-  (when (member my-font (font-family-list))
+  (when (find-font (font-spec :name my-font))
     ;; 1. Основной моноширинный шрифт (для кода)
     (set-face-attribute 'default nil :font (format "%s-%d" my-font my-size))
     ;; 2. Явно указываем моноширинный шрифт для таблиц и выравниваний
@@ -33,9 +33,12 @@
     ;; "Sans Serif" — это системный алиас, ОС сама подберет красивый шрифт без засечек
     (set-face-attribute 'variable-pitch nil :font (format "Sans Serif-%d" my-size))))
 
-;; Сохранять сессию (открытые буферы, окна и вкладки) между запусками
-(desktop-save-mode 1)
+;; Включаем панель вкладок (Workspaces)
+(tab-bar-mode 1)
 
+;; Указываем, что новая вкладка должна открывать дашборд
+(setq tab-bar-new-tab-choice "*dashboard*")
+ 
 ;; Изменение высоты окон (симметрично ширине, без Shift)
 (global-set-key (kbd "C-x ]") 'enlarge-window)
 (global-set-key (kbd "C-x [") 'shrink-window)
@@ -66,9 +69,6 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
-;; --- Менеджер пакетов ---
-(require 'package)
-
 ;; Добавляем MELPA в список репозиториев
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
@@ -77,9 +77,6 @@
       '(("gnu"    . 10)    ; Официальный репозиторий Emacs (самый надежный)
         ("nongnu" . 5)     ; Официальный репозиторий для пакетов вне ядра
         ("melpa"  . 0)))   ; Репозиторий сообщества (самые свежие версии)
-
-;; Инициализируем менеджер пакетов
-(package-initialize)
 
 ;; --- Инициализация use-package ---
 (require 'use-package)
@@ -90,11 +87,39 @@
 
 ;; --- Пользовательские пакеты ---
 
-(use-package which-key
-  :ensure nil ; Явно указываем, что пакет встроен в ядро (не требует скачивания)
-  :defer 2   ; Ленивая загрузка: загрузить в фоне через 2 секунды простоя
-  :config    ; Код в этом блоке выполнится ТОЛЬКО после того, как пакет загрузится
-  (which-key-mode 1))
+;; --- Стартовый экран (Dashboard) ---
+(use-package dashboard
+  :ensure t
+  :config
+  ;; Наш ASCII баннер
+  (setq dashboard-startup-banner "
+  _____ __  __          _____  _____ 
+ |  ___|  \\/  |   /\\   / ____|/ ____|
+ | |__ | \\  / |  /  \\ | |    | (___  
+ |  __|| |\\/| | / /\\ \\| |     \\___ \\ 
+ | |___| |  | |/ ____ \\ |____ ____) |
+ |_____|_|  |_/_/    \\_\\_____|_____/ 
+")
+  ;; Центрируем контент по горизонтали
+  (setq dashboard-center-content t)
+  
+  ;; Указываем, какие виджеты выводить и по сколько строк
+  (setq dashboard-items '((recents  . 5)
+                          (projects . 5)))
+                          
+  ;; Команда, которая заменяет стандартный *scratch* на дашборд при старте
+  (dashboard-setup-startup-hook)
+  (add-hook 'dashboard-mode-hook (lambda () (setq default-directory "~/"))))
+
+;; --- Внешний вид (Тема оформления) ---
+(use-package zenburn-theme
+  :ensure t
+  :init
+  ;; Задаем новые цвета ДО того, как тема начнет загружаться
+  (setq zenburn-override-colors-alist
+        '(("zenburn-bg" . "#353535")))
+  :config
+  (load-theme 'zenburn t))
 
 ;; Включение обработки нажатий в русской раскладке
 (use-package reverse-im
@@ -102,12 +127,6 @@
   (reverse-im-input-methods '("russian-computer"))
   :config
   (reverse-im-mode t))
-
-;; --- Git интерфейс (Magit) ---
-(use-package magit
-  ;; Назначаем глобальный шорткат для открытия панели Magit
-  :bind ("C-x g" . magit-status)
-  :defer 1)
 
 ;; --- Современный интерфейс (Минибуфер) ---
 (use-package vertico
@@ -140,19 +159,100 @@
 ;; --- Быстрый переключатель окон (ace-window) ---
 (use-package ace-window
   :bind ("M-o" . ace-window))
-
-;; --- Внешний вид (Тема оформления) ---
-(use-package doom-themes
-  :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  
-  ;; Добавляем нашу личную папку в список мест, где Emacs ищет темы
-  (add-to-list 'custom-theme-load-path (expand-file-name "themes/" user-emacs-directory))
-  
-  ;; Загружаем НАШУ форкнутую тему
-  (load-theme 'doom-dark++ t))
   
 ;; Удобная навигация в Dired
 (with-eval-after-load 'dired
   (define-key dired-mode-map (kbd "DEL") 'dired-up-directory))
+
+;; --- Встроенная память недавних файлов ---
+(use-package recentf
+  :ensure nil ; Пакет встроен в ядро
+  :hook (after-init . recentf-mode) ; Включаем сразу после загрузки Emacs
+  :custom
+  (recentf-max-saved-items 25)) ; Сколько файлов запоминать
+
+;; --- Среда для Scheme (SICP) ---
+(use-package geiser-racket
+  :ensure t
+  :hook (scheme-mode . geiser-mode)
+  :custom
+  ;; Указываем Geiser использовать Racket по умолчанию
+  (geiser-active-implementations '(racket))
+  ;; Отключаем всплывающие окна с документацией, чтобы не отвлекали
+  (geiser-autodoc-mode nil))
+
+;; --- Настройка текста и переноса строк ---
+;; Включаем визуальный перенос строк (мягкий перенос по границе окна)
+;; только для текстовых режимов (Org-mode, Markdown, обычный текст)
+(add-hook 'text-mode-hook 'visual-line-mode)
+
+;; --- Система быстрого захвата (Org Capture) ---
+(use-package org
+  :ensure nil ; Пакет встроен в ядро, скачивать не нужно
+  :bind ("C-c c" . org-capture) ; Глобальный шорткат для вызова меню захвата
+  :custom
+  ;; Записывать время закрытия задачи
+  (org-log-done 'time)
+  ;; Прятать логи и заметки в ящик
+  (org-log-into-drawer t)
+  :config
+  ;; Настраиваем шаблоны
+  (setq org-capture-templates
+        `(("e" "Emacs Шпаргалка" plain
+           ;; Указываем путь к нашему файлу-шпаргалке внутри проекта Emacs
+           (file ,(expand-file-name "cheatsheet.org" user-emacs-directory))
+           ;; Шаблон: Emacs сам спросит комбинацию и описание, а потом подставит их сюда
+           "- =%^{Комбинация клавиш}= :: %^{Описание}\n"
+           ;; Добавлять новые записи в самый конец файла
+           :append t))))
+
+;; --- Git интерфейс (Magit) ---
+(use-package magit
+  ;; Назначаем глобальный шорткат для открытия панели Magit
+  :bind ("C-x g" . magit-status)
+  :defer 1)
+
+;; --- Фикс для Magit/Server на Windows ---
+;; Отключаем строгую проверку владельца папки сервера, 
+;; так как Windows назначает владельцем группу "Администраторы".
+(when (eq system-type 'windows-nt)
+  (advice-add 'server-ensure-safe-dir :override #'ignore))
+
+(use-package which-key
+  :ensure nil ; Явно указываем, что пакет встроен в ядро (не требует скачивания)
+  :defer 2   ; Ленивая загрузка: загрузить в фоне через 2 секунды простоя
+  :config    ; Код в этом блоке выполнится ТОЛЬКО после того, как пакет загрузится
+  (which-key-mode 1))
+
+;; --- Автодополнение в буфере (Corfu) ---
+(use-package corfu
+  :custom
+  (corfu-auto t)          ;; Автоматически выводить подсказки при печати
+  (corfu-quit-no-match t) ;; Скрывать окно, если совпадений больше нет
+  :init
+  (global-corfu-mode))
+
+;; --- Визуализация дерева отмены (Vundo) ---
+(use-package vundo
+  :bind ("C-x u" . vundo))
+
+;; --- Продвинутая самодокументация (Helpful) ---
+(use-package helpful
+  :bind
+  ;; remap перехватывает вызовы стандартных функций справки и заменяет их на helpful
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-command]  . helpful-command)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key]      . helpful-key))
+
+;; --- Модульная система ---
+;; Добавляем папку lisp в пути поиска Emacs
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+;; Подключаем наши модули
+(require 'depthzer0-workspaces)
+
+;; Возвращаем сборщик мусора в нормальное состояние (16 MB) после загрузки
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 16 1024 1024))))
