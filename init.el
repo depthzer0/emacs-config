@@ -91,6 +91,13 @@
 
 ;; --- Пользовательские пакеты ---
 
+;; --- Встроенная память недавних файлов ---
+(use-package recentf
+  :ensure nil ; Пакет встроен в ядро
+  :hook (after-init . recentf-mode) ; Включаем сразу после загрузки Emacs
+  :custom
+  (recentf-max-saved-items 25)) ; Сколько файлов запоминать
+
 ;; --- Стартовый экран (Dashboard) ---
 (use-package dashboard
   :ensure t
@@ -181,13 +188,6 @@
   
   ;; Оставляем твою настройку возврата
   (define-key dired-mode-map (kbd "DEL") 'dired-up-directory))
-
-;; --- Встроенная память недавних файлов ---
-(use-package recentf
-  :ensure nil ; Пакет встроен в ядро
-  :hook (after-init . recentf-mode) ; Включаем сразу после загрузки Emacs
-  :custom
-  (recentf-max-saved-items 25)) ; Сколько файлов запоминать
 
 ;; --- Среда для Scheme (SICP) ---
 (use-package geiser-racket
