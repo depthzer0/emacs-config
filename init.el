@@ -262,6 +262,13 @@
 	 (unless (file-exists-p dir) (make-directory dir t)) t)
   (advice-add 'server-ensure-safe-dir :override #'my-server-ensure-safe-dir))
 
+;; Явно указываем абсолютный путь к emacsclient для Magit
+(with-eval-after-load 'with-editor
+  (when (eq system-type 'windows-nt)
+    (setq with-editor-emacsclient-executable (expand-file-name "emacsclient.exe" invocation-directory))))
+;; Запускаем сервер Emacs (теперь он использует наш фикс безопасной директории)
+(server-mode 1)
+
 ;; --- Настройка SSH для Magit в Windows ---
 ;; Указываем Git использовать нативный SSH-клиент Windows, 
 ;; который умеет работать с системным ssh-agent (и KeePassXC)
