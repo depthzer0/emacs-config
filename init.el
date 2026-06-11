@@ -26,7 +26,8 @@
 ;; Проверяем, есть ли нужный шрифт в системе, чтобы избежать ошибок
 ;;(let ((my-font "JetBtains Mono")
 ;;(let ((my-font "Hack")
-(let ((my-font "Fira Code")
+;;(let ((my-font "Fira Code")
+(let ((my-font "FiraCode Nerd Font Mono")
       (my-size 11))
   (when (find-font (font-spec :name my-font))
     ;; 1. Основной моноширинный шрифт (для кода)
@@ -74,6 +75,7 @@
   (load custom-file))
 
 ;; Добавляем MELPA в список репозиториев
+(require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
 ;; Настраиваем приоритеты репозиториев (чем больше число, тем выше приоритет)
@@ -90,6 +92,19 @@
 (setq use-package-always-ensure t)
 
 ;; --- Пользовательские пакеты ---
+
+;; --- Иконки ---
+(use-package nerd-icons
+  :ensure t
+  :custom
+  ;; Явно указываем движку использовать наш моноширинный шрифт
+  (nerd-icons-font-family "FiraCode Nerd Font Mono"))
+
+;; Добавляем иконки в файловый менеджер Dired
+(use-package nerd-icons-dired
+  :ensure t
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
 
 ;; --- Встроенная память недавних файлов ---
 (use-package recentf
@@ -242,10 +257,10 @@
   :defer 1)
 
 ;; --- Фикс для Magit/Server на Windows ---
-;; Отключаем строгую проверку владельца папки сервера, 
-;; так как Windows назначает владельцем группу "Администраторы".
 (when (eq system-type 'windows-nt)
-  (advice-add 'server-ensure-safe-dir :override #'ignore))
+  (defun my-server-ensure-safe-dir (dir) "Создает директорию DIR, если её нет, но пропускает строгую проверку прав на Windows."
+	 (unless (file-exists-p dir) (make-directory dir t)) t)
+  (advice-add 'server-ensure-safe-dir :override #'my-server-ensure-safe-dir))
 
 ;; --- Настройка SSH для Magit в Windows ---
 ;; Указываем Git использовать нативный SSH-клиент Windows, 
@@ -286,6 +301,11 @@
 
 ;; Подключаем наши модули
 (require 'depthzer0-workspaces)
+
+;; Подключаем иконки к дашборду
+(setq dashboard-icon-type 'nerd-icons)
+(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
 
 ;; Возвращаем сборщик мусора в нормальное состояние (16 MB) после загрузки
 (add-hook 'emacs-startup-hook
