@@ -173,21 +173,32 @@
   
 ;; Удобная навигация и работа с Dired
 (with-eval-after-load 'dired
-  ;; 1. Проваливаться в папки, не плодя новые буферы/вкладки
+
+  ;; 1. Проваливаться в папки, не плодя новые буферы
   (setq dired-kill-when-opening-new-dired-buffer t)
 
-  ;; 2. Функция для клика мышью: ставим курсор и вызываем стандартный RET
+  ;; 2. Функция для клика мышью
   (defun my-dired-mouse-find-file (event)
     "Обрабатывает клик мыши, открывая файл/папку в текущем окне."
     (interactive "e")
     (mouse-set-point event)
     (dired-find-file))
 
-  ;; 3. Переназначаем клик мыши (mouse-2 срабатывает и при клике левой кнопкой по ссылке)
+  ;; 3. Переназначаем клик мыши
   (define-key dired-mode-map (kbd "<mouse-2>") 'my-dired-mouse-find-file)
-  
-  ;; Оставляем твою настройку возврата
-  (define-key dired-mode-map (kbd "DEL") 'dired-up-directory))
+
+  ;; 4. Настройка возврата
+  (define-key dired-mode-map (kbd "DEL") 'dired-up-directory)
+
+  ;; 5. Добавляем суффикс " : dired" к имени буфера
+  (defun my-dired-rename-buffer ()
+    "Добавляет суффикс к имени буфера Dired."
+    (let ((name (buffer-name)))
+      (unless (string-suffix-p " : dired" name)
+        (rename-buffer (concat name " : dired") t))))
+
+  ;; 6. Вешаем функцию на хук запуска Dired
+  (add-hook 'dired-mode-hook 'my-dired-rename-buffer))
 
 ;; --- Среда для Scheme (SICP) ---
 (use-package geiser-racket
