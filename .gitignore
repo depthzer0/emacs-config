@@ -17,6 +17,8 @@ custom-auto.el
 # Временные файлы бэкапов (Emacs создает файлы с тильдой на конце)
 *~
 \#*\#
+
+# Другое
 /transient/
 /projects
 /recentf

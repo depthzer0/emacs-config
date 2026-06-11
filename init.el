@@ -17,6 +17,10 @@
 ;; Удалять выделенный текст при нажатии Backspace или вводе нового текста
 (delete-selection-mode 1)
 
+;; --- Отображение номеров строк ---
+;; Включаем нумерацию строк для всех языков программирования (включая Elisp)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 ;; --- Настройка шрифта ---
 
 ;; Проверяем, есть ли нужный шрифт в системе, чтобы избежать ошибок
@@ -160,8 +164,22 @@
 (use-package ace-window
   :bind ("M-o" . ace-window))
   
-;; Удобная навигация в Dired
+;; Удобная навигация и работа с Dired
 (with-eval-after-load 'dired
+  ;; 1. Проваливаться в папки, не плодя новые буферы/вкладки
+  (setq dired-kill-when-opening-new-dired-buffer t)
+
+  ;; 2. Функция для клика мышью: ставим курсор и вызываем стандартный RET
+  (defun my-dired-mouse-find-file (event)
+    "Обрабатывает клик мыши, открывая файл/папку в текущем окне."
+    (interactive "e")
+    (mouse-set-point event)
+    (dired-find-file))
+
+  ;; 3. Переназначаем клик мыши (mouse-2 срабатывает и при клике левой кнопкой по ссылке)
+  (define-key dired-mode-map (kbd "<mouse-2>") 'my-dired-mouse-find-file)
+  
+  ;; Оставляем твою настройку возврата
   (define-key dired-mode-map (kbd "DEL") 'dired-up-directory))
 
 ;; --- Встроенная память недавних файлов ---

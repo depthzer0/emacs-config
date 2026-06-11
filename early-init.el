@@ -6,13 +6,16 @@
 ;; --- Стартовое окно ---
 (setq inhibit-startup-message t)
 
-;; Задаем точный размер окна (фрейма) в пикселях
-(add-to-list 'default-frame-alist '(width  . (text-pixels . 2200)))
-(add-to-list 'default-frame-alist '(height . (text-pixels . 1300)))
+;; ;; Задаем точный размер окна (фрейма) в пикселях
+;; (add-to-list 'default-frame-alist '(width  . (text-pixels . 2200)))
+;; (add-to-list 'default-frame-alist '(height . (text-pixels . 1200)))
 
-;; Позиционируем только самое первое окно при запуске
-(add-to-list 'initial-frame-alist '(top . 5))
-(add-to-list 'initial-frame-alist '(left . 150))
+;; ;; Позиционируем только самое первое окно при запуске
+;; (add-to-list 'initial-frame-alist '(top . 5))
+;; (add-to-list 'initial-frame-alist '(left . 150))
+
+;; Разворачиваем окно на весь экран при запуске
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Запрещаем Emacs менять размер окна при загрузке шрифтов
 (setq frame-inhibit-implied-resize t)
