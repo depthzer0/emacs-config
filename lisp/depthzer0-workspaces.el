@@ -59,6 +59,8 @@
      ;; Проходим по списку с конца
      (dolist (n (reverse nodes))
        (depthzer0-workspace--build-node n))
+     ;; Включаем режим официально (это запустит tab-line-mode-hook)
+     (tab-line-mode 1)
      ;; Передаем движку отрисовки правильный формат (mode-line construct)
      (set-window-parameter nil 'tab-line-format '(:eval (tab-line-format))))
     
