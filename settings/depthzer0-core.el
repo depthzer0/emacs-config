@@ -8,7 +8,45 @@
 
 ;;; Code:
 
+;; --- Отключаем звуковой сигнал (beep) при ошибках ---
+(setq ring-bell-function 'ignore)
 
+;; --- Устанавливаем домашнюю директорию по умолчанию для новых буферов ---
+(setq-default default-directory "~/")
+
+;; --- Изоляция автоматически сгенерированного кода ---
+(setq custom-file (expand-file-name "custom-auto.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+;; --- Отключение сохранения сессии между запусками ---
+(desktop-save-mode -1)
+
+;; --- Удалять выделенный текст при нажатии Backspace ---
+(delete-selection-mode 1)
+
+;; --- Отображение номеров строк ---
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;; --- Настройка окон и встроенного режима повторения (repeat-mode) ---
+(repeat-mode 1)
+
+(global-set-key (kbd "C-x ]") 'enlarge-window)
+(global-set-key (kbd "C-x [") 'shrink-window)
+
+(defvar my-window-resize-repeat-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "]") 'enlarge-window)
+    (define-key map (kbd "[") 'shrink-window)
+    (define-key map (kbd "}") 'enlarge-window-horizontally)
+    (define-key map (kbd "{") 'shrink-window-horizontally)
+    map)
+  "Моя кастомная карта для быстрого изменения размеров окон.")
+
+(put 'enlarge-window 'repeat-map 'my-window-resize-repeat-map)
+(put 'shrink-window 'repeat-map 'my-window-resize-repeat-map)
+(put 'enlarge-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
+(put 'shrink-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
 
 (provide 'depthzer0-core)
 ;;; depthzer0-core.el ends here
