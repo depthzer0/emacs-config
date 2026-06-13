@@ -23,20 +23,30 @@
 
 ;; --- Настройка шрифта ---
 
-;; Проверяем, есть ли нужный шрифт в системе, чтобы избежать ошибок
-;;(let ((my-font "JetBtains Mono")
-;;(let ((my-font "Hack")
-;;(let ((my-font "Fira Code")
-(let ((my-font "FiraCode Nerd Font Mono")
-      (my-size 11))
-  (when (find-font (font-spec :name my-font))
-    ;; 1. Основной моноширинный шрифт (для кода)
-    (set-face-attribute 'default nil :font (format "%s-%d" my-font my-size))
-    ;; 2. Явно указываем моноширинный шрифт для таблиц и выравниваний
-    (set-face-attribute 'fixed-pitch nil :font (format "%s-%d" my-font my-size))
-    ;; 3. Пропорциональный шрифт (для чтения текста, например в Org-mode)
-    ;; "Sans Serif" — это системный алиас, ОС сама подберет красивый шрифт без засечек
-    (set-face-attribute 'variable-pitch nil :font (format "Sans Serif-%d" my-size))))
+;; --- Настройка шрифта ---
+(let* ((my-size 11)
+       (my-prop-size 12)
+       (my-mono-font "FiraCode Nerd Font Mono")
+       ;; Список пропорциональных шрифтов от самого желанного к запасному
+       (prop-fonts '("Segoe UI" "Ubuntu" "Noto Sans" "Roboto" "Arial"))
+       ;; Ищем первый шрифт из списка, который установлен в системе
+       (my-prop-font (seq-find (lambda (f) (find-font (font-spec :name f))) prop-fonts)))
+  
+  ;; 1. Устанавливаем моноширинные шрифты (если FiraCode найден)
+  (when (find-font (font-spec :name my-mono-font))
+    (set-face-attribute 'default nil :font (format "%s-%d" my-mono-font my-size))
+    (set-face-attribute 'fixed-pitch nil :font (format "%s-%d" my-mono-font my-size)))
+  
+  ;; 2. Устанавливаем пропорциональный шрифт (если нашёлся хотя бы один из списка)
+  (when my-prop-font
+    (set-face-attribute 'variable-pitch nil :font (format "%s-%d" my-prop-font my-prop-size))))
+
+;; --- Настройка встроенной документации (Info) ---
+(use-package info
+  :ensure nil ; Пакет встроен в ядро
+  :hook
+  ;; Включаем пропорциональный шрифт для комфортного чтения
+  (Info-mode . variable-pitch-mode))
 
 ;; Включаем панель вкладок (Workspaces)
 (tab-bar-mode 1)
@@ -305,6 +315,24 @@
 ;; --- Модульная система ---
 ;; Добавляем папку lisp в пути поиска Emacs
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+(use-package autoinsert
+  :init
+  ;; Включаем режим глобально при старте
+  (auto-insert-mode 1)
+  :config
+  ;; Отключаем назойливый вопрос при создании файла
+  (setq auto-insert-query nil)
+  
+  ;; Задаем папку с шаблонами. 
+  ;; Функция locate-user-emacs-file сама найдет ~/.emacs.d/ или ~/.config/emacs/
+  ;; ВАЖНО: слэш на конце директории обязателен!
+  (setq auto-insert-directory (locate-user-emacs-file "templates/"))
+
+  ;; Добавляем правила в alist.
+  ;; Обрати внимание на экранирование точек и привязку к концу строки (\')
+  (add-to-list 'auto-insert-alist '("\\.gitignore\\'" . "gitignore.template"))
+  (add-to-list 'auto-insert-alist '("\\.org\\'" . "org.template")))
 
 ;; Подключаем наши модули
 (require 'depthzer0-workspaces)
