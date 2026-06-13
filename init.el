@@ -302,6 +302,19 @@
   ([remap describe-variable] . helpful-variable)
   ([remap describe-key]      . helpful-key))
 
+;; --- Структурное редактирование (Smartparens) ---
+(use-package smartparens
+  :hook
+  ;; Включаем базовый режим автоподстановки во всех буферах
+  (after-init . smartparens-global-mode)
+  ;; Включаем строгую дисциплину (как в Paredit) только для Lisp-языков
+  (emacs-lisp-mode . smartparens-strict-mode)
+  (scheme-mode     . smartparens-strict-mode)
+  (lisp-mode       . smartparens-strict-mode)
+  :config
+  ;; Подгружаем стандартные настройки (правила для разных языков)
+  (require 'smartparens-config))
+
 ;; --- Модульная система ---
 ;; Добавляем папку lisp в пути поиска Emacs
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
