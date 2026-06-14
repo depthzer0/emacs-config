@@ -57,6 +57,11 @@
   :config
   (require 'smartparens-config))
 
+;; --- Утилита для работы с текстовыми форматами (pandoc) ---
+(use-package pandoc-mode
+  :ensure t
+  :hook (markdown-mode . pandoc-mode))
+
 ;; --- Файловый менеджер (Dired) ---
 (use-package dired
   :ensure nil
