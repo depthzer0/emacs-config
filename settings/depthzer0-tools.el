@@ -57,7 +57,13 @@
   :config
   (require 'smartparens-config))
 
-;; --- Утилита для работы с текстовыми форматами (pandoc) ---
+;; --- Поддержка Markdown и конвертация (Pandoc) ---
+(use-package markdown-mode
+  :ensure t
+  :mode ("\\.md\\'" . markdown-mode)
+  :custom
+  (markdown-command "pandoc"))
+
 (use-package pandoc-mode
   :ensure t
   :hook (markdown-mode . pandoc-mode))
