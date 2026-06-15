@@ -66,7 +66,28 @@
 
 (use-package pandoc-mode
   :ensure t
-  :hook (markdown-mode . pandoc-mode))
+  :hook (markdown-mode . pandoc-mode)
+  :bind ("C-c b" . my-pandoc-build-project)
+  :config
+  ;; Легализуем путь к браузеру для mermaid-filter
+  (setenv "PUPPETEER_EXECUTABLE_PATH" "C:\\Users\\Dima\\.cache\\puppeteer\\chrome\\win64-149.0.7827.22\\chrome-win64\\chrome.exe")
+
+  (defun my-pandoc-build-project ()
+    "Запускает асинхронную сборку Pandoc, используя build.yaml в текущей папке."
+    (interactive)
+    (if (file-exists-p "build.yaml")
+        (progn
+          (message "Pandoc: Сборка начата в фоне...")
+          (make-process
+           :name "pandoc-build"
+           :buffer "*Pandoc Async Output*"
+           :command '("pandoc" "-d" "build.yaml")
+           :sentinel (lambda (process event)
+                       (when (string= event "finished\n")
+                         (message "Pandoc: Сборка УСПЕШНО завершена!"))
+                       (when (string-match-p "exited abnormally" event)
+                         (message "Pandoc: ОШИБКА сборки. Проверьте буфер *Pandoc Async Output*.")))))
+      (error "Файл build.yaml не найден в текущей директории!"))))
 
 ;; --- Файловый менеджер (Dired) ---
 (use-package dired
