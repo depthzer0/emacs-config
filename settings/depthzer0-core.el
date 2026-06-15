@@ -13,8 +13,12 @@
 (prefer-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
+
+;; Буфер обмена в Windows исторически работает в UTF-16LE.
+;; Жесткое указание UTF-8 ломает вставку русского текста из других программ.
+(unless (eq system-type 'windows-nt)
+  (set-selection-coding-system 'utf-8))
 
 ;; --- Отключаем звуковой сигнал (beep) при ошибках ---
 (setq ring-bell-function 'ignore)
