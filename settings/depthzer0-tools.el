@@ -117,6 +117,37 @@
   :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
 
+;; --- Управление проектами (project.el) ---
+(use-package project
+  :ensure nil ; Пакет встроен в ядро
+  :bind (:map project-prefix-map
+              ("+" . my-project-remember-current)
+              ("-" . my-project-forget-current))
+  :config
+  (defun my-project-remember-current ()
+    "Явно регистрирует текущую директорию как проект."
+    (interactive)
+    ;; Пытаемся получить объект проекта для текущей папки
+    (let ((pr (project-current nil default-directory)))
+      (if pr
+          (progn
+            ;; Если проект найден, передаем его во внутреннюю API-функцию
+            (project-remember-project pr)
+            (message "Проект успешно зарегистрирован: %s" (project-root pr)))
+        ;; Если это обычная папка без .git
+        (user-error "В текущей директории не найден маркер проекта (например, .git)"))))
+  
+  (defun my-project-forget-current ()
+    "Явно удаляет текущую директорию из списка известных проектов."
+    (interactive)
+    (let ((pr (project-current nil default-directory)))
+      (if pr
+          (let ((root (project-root pr)))
+            ;; Передаем путь напрямую, чтобы избежать диалогового окна
+            (project-forget-project root)
+            (message "Проект удален из дашборда: %s" root))
+        (user-error "Текущая директория не является проектом")))))
+
 ;; --- Система быстрого захвата (Org Capture) ---
 (use-package org
   :ensure nil
