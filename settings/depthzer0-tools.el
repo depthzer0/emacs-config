@@ -117,6 +117,16 @@
   :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
 
+;; --- Эмулятор ls для Windows (убираем кракозябры в Dired) ---
+(when (eq system-type 'windows-nt)
+  (use-package ls-lisp
+    :ensure nil
+    :custom
+    ;; Форсируем использование встроенного эмулятора, даже если в PATH есть ls.exe от Git
+    (ls-lisp-use-insert-directory-program nil)
+    ;; Отключаем отображение владельца и группы
+    (ls-lisp-verbosity nil)))
+
 ;; --- Управление проектами (project.el) ---
 (use-package project
   :ensure nil ; Пакет встроен в ядро

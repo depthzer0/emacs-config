@@ -8,6 +8,14 @@
 
 ;;; Code:
 
+;; --- Глобальная кодировка (UTF-8 Everywhere) ---
+(set-charset-priority 'unicode)
+(prefer-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+
 ;; --- Отключаем звуковой сигнал (beep) при ошибках ---
 (setq ring-bell-function 'ignore)
 
@@ -47,6 +55,13 @@
 (put 'shrink-window 'repeat-map 'my-window-resize-repeat-map)
 (put 'enlarge-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
 (put 'shrink-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
+
+;; --- Оптимизация работы с файлами на Windows ---
+(when (eq system-type 'windows-nt)
+  ;; Отключаем запрос точных прав доступа и владельца файла (POSIX).
+  ;; Это убирает кракозябры (слово "Отсутствует") в аннотациях Marginalia
+  ;; и значительно ускоряет работу с файловой системой на Windows.
+  (setq w32-get-true-file-attributes nil))
 
 (provide 'depthzer0-core)
 ;;; depthzer0-core.el ends here
