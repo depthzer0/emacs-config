@@ -8,22 +8,31 @@
 ;;; Code:
 
 ;; --- Настройка шрифта ---
-(let* ((my-size 11)
-       (my-prop-size 12)
-       (my-mono-font "FiraCode Nerd Font Mono")
-       ;; Список пропорциональных шрифтов от самого желанного к запасному
-       (prop-fonts '("Segoe UI" "Ubuntu" "Noto Sans" "Roboto" "Arial"))
-       ;; Ищем первый шрифт из списка, который установлен в системе
-       (my-prop-font (seq-find (lambda (f) (find-font (font-spec :name f))) prop-fonts)))
-  
-  ;; 1. Устанавливаем моноширинные шрифты (если FiraCode найден)
-  (when (find-font (font-spec :name my-mono-font))
-    (set-face-attribute 'default nil :font (format "%s-%d" my-mono-font my-size))
-    (set-face-attribute 'fixed-pitch nil :font (format "%s-%d" my-mono-font my-size)))
-  
-  ;; 2. Устанавливаем пропорциональный шрифт (если нашёлся хотя бы один из списка)
-  (when my-prop-font
-    (set-face-attribute 'variable-pitch nil :font (format "%s-%d" my-prop-font my-prop-size))))
+(defun my-setup-fonts ()
+  "Настройка шрифтов. Вызывается при старте и при создании окон клиентом."
+  (let* ((my-size 11)
+         (my-prop-size 12)
+         (my-mono-font "FiraCode Nerd Font Mono")
+         (prop-fonts '("Segoe UI" "Ubuntu" "Noto Sans" "Roboto" "Arial"))
+         (my-prop-font (seq-find (lambda (f) (find-font (font-spec :name f))) prop-fonts)))
+    
+    ;; 1. Устанавливаем моноширинные шрифты (если FiraCode найден)
+    (when (find-font (font-spec :name my-mono-font))
+      ;; nil применяет к текущему окну, t — ко всем будущим
+      (set-face-attribute 'default nil :font (format "%s-%d" my-mono-font my-size))
+      (set-face-attribute 'default t   :font (format "%s-%d" my-mono-font my-size))
+      (set-face-attribute 'fixed-pitch nil :font (format "%s-%d" my-mono-font my-size))
+      (set-face-attribute 'fixed-pitch t   :font (format "%s-%d" my-mono-font my-size)))
+    
+    ;; 2. Устанавливаем пропорциональный шрифт
+    (when my-prop-font
+      (set-face-attribute 'variable-pitch nil :font (format "%s-%d" my-prop-font my-prop-size))
+      (set-face-attribute 'variable-pitch t   :font (format "%s-%d" my-prop-font my-prop-size)))))
+
+;; Применяем при обычной загрузке (если запускаем без демона)
+(my-setup-fonts)
+;; Применяем каждый раз, когда emacsclient создает новое окно
+(add-hook 'server-after-make-frame-hook #'my-setup-fonts)
 
 ;; --- Внешний вид (Тема оформления) ---
 (use-package zenburn-theme
@@ -46,6 +55,8 @@
 (use-package dashboard
   :ensure t
   :custom
+  ;; Явно указываем серверу отдавать дашборд при подключении клиента
+  (initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   ;; Наш ASCII баннер
   (dashboard-startup-banner "
   _____ __  __          _____  _____ 
