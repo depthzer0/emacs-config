@@ -172,6 +172,23 @@
            "- =%^{Комбинация клавиш}= :: %^{Описание}\n"
            :append t))))
 
+;; --- База знаний (Org Roam) ---
+(use-package org-roam
+  :ensure t
+  :custom
+  ;; Указываем главную папку для базы знаний
+  (org-roam-directory (file-truename "~/projects/org-roam"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert))
+  :config
+  ;; Если папки нет — создаем её
+  (unless (file-exists-p org-roam-directory)
+    (make-directory org-roam-directory t))
+  
+  ;; Включаем фоновую синхронизацию БД с текстовыми файлами
+  (org-roam-db-autosync-mode))
+
 ;; --- Среда для Scheme (SICP) ---
 (use-package geiser-racket
   :ensure t
