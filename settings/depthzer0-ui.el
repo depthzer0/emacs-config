@@ -40,7 +40,7 @@
   :init
   ;; Задаем новые цвета ДО того, как тема начнет загружаться
   (setq zenburn-override-colors-alist
-        '(("zenburn-bg" . "#353535")))
+        '(("zenburn-bg" . "#353535")("zenburn-bg-1" . "#535353")))
   :config
   (load-theme 'zenburn t))
 
